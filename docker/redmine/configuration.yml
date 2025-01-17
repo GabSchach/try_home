@@ -1,15 +1,3 @@
-default:
-  email_delivery:
-    delivery_method: :smtp
-    smtp_settings:
-      enable_starttls_auto: true
-      address: smtp.gmail.com
-      port: 587
-      domain: gmail.com
-      authentication: :plain
-      user_name: testgabriel44@gmail.com
-      password: "yfwy ykxq bwcs dtlu"
-
 production:
   email_delivery:
     delivery_method: :smtp
@@ -18,10 +6,10 @@ production:
       address: smtp.gmail.com
       port: 587
       domain: gmail.com
-      authentication: :plain
+      authentication: :login
       user_name: testgabriel44@gmail.com
       password: "yfwy ykxq bwcs dtlu"
-      
+  
   incoming_emails:
     enabled: true
     protocol: imap
@@ -31,13 +19,10 @@ production:
     username: testgabriel44@gmail.com
     password: "yfwy ykxq bwcs dtlu"
     folder: INBOX
+    default_tracker: Support
+    project: support
+    unknown_user: create
+    no_permission_check: 1
+    allow_override: all
 
-  # Project settings for email handling
-  mail_handler_api_enabled: true
-  mail_handler_api_key: "your_random_key_here"
-  default_priority: normal
-  project_from_subaddress: true
-  unknown_user: create
-  no_permission_check: true
-  default_project_id: support  # Add this line
-  project_from_subject: true   # Add this line
+  attachments_storage_path: /usr/src/redmine/files

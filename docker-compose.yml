@@ -6,19 +6,25 @@ services:
       - "8080:3000"
     environment:
       - REDMINE_DB_POSTGRES=postgres
-      - REDMINE_DB_DATABASE=redmine
+      - REDMINE_DB_PORT=5432
       - REDMINE_DB_USERNAME=redmine
       - REDMINE_DB_PASSWORD=redmine_password
-      - REDMINE_SECRET_KEY_BASE=your_secret_key_here
-      - REDMINE_PLUGINS_MIGRATE=true
-    restart: unless-stopped
+      - REDMINE_DB_DATABASE=redmine
+      - RAILS_ENV=production
+      - SECRET_KEY_BASE=8a2f56kj3h4k5h6k7j8h9k0j1l2m3n4b5v6c7x8z9
+      - REDMINE_LANG=en
     volumes:
       - redmine_files:/usr/src/redmine/files
       - ./plugins:/usr/src/redmine/plugins
+      - redmine_logs:/usr/src/redmine/log
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - redmine-network
-    depends_on:
-      - postgres
+    restart: always
+    tty: true
+    stdin_open: true
 
   postgres:
     image: postgres:13
@@ -28,10 +34,14 @@ services:
       - POSTGRES_DB=redmine
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - redmine-network
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redmine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 networks:
   redmine-network:
@@ -40,3 +50,4 @@ networks:
 volumes:
   postgres_data:
   redmine_files:
+  redmine_logs:
