@@ -12,6 +12,14 @@ priority=normal \
 allow_override=all
 
 
+# Stop containers
+docker-compose down
+
+# Clean up
+docker system prune -f
+
+# Rebuild and start
+docker-compose up -d --build
 
 # Wait a few seconds then check the logs
 docker-compose exec redmine tail -f /var/log/redmine/email_fetch.log
