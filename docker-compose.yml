@@ -1,0 +1,42 @@
+services:
+  redmine:
+    build: 
+      context: ./docker/redmine
+    ports:
+      - "8080:3000"
+    environment:
+      - REDMINE_DB_POSTGRES=postgres
+      - REDMINE_DB_DATABASE=redmine
+      - REDMINE_DB_USERNAME=redmine
+      - REDMINE_DB_PASSWORD=redmine_password
+      - REDMINE_SECRET_KEY_BASE=your_secret_key_here
+      - REDMINE_PLUGINS_MIGRATE=true
+    restart: unless-stopped
+    volumes:
+      - redmine_files:/usr/src/redmine/files
+      - ./plugins:/usr/src/redmine/plugins
+    networks:
+      - redmine-network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=redmine
+      - POSTGRES_PASSWORD=redmine_password
+      - POSTGRES_DB=redmine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - redmine-network
+    restart: unless-stopped
+
+networks:
+  redmine-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redmine_files:
