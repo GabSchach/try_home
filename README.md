@@ -1,7 +1,7 @@
 docker-compose exec redmine rake redmine:email:receive_imap RAILS_ENV=production \
 host=imap.gmail.com \
 username=testgabriel44@gmail.com \
-password="yfwy ykxq bwcs dtlu" \
+password="#####################" \
 port=993 \
 ssl=true \
 folder=INBOX \
