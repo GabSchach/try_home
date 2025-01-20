@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontakt Formular</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({
+                publicKey: "LKKp9Q4zsPdIq13Lz",
+            });
+        })();
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="contactForm">
+            <h2>Kontakt Formular</h2>
+            
+            <div class="form-group">
+                <label for="category">Kategorie:</label>
+                <select id="category" name="category" required>
+                    <option value="">Bitte wählen...</option>
+                    <option value="information">Information</option>
+                    <option value="changes">Abänderungen</option>
+                    <option value="add_data">Daten hinzufügen</option>
+                </select>
+                <div id="categoryError" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="from_name" 
+                    required 
+                    placeholder="Ihr Name"
+                    aria-required="true"
+                    aria-describedby="nameError">
+                <div id="nameError" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-Mail:</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="reply_to" 
+                    required 
+                    placeholder="ihre@email.com"
+                    aria-required="true"
+                    aria-describedby="emailError">
+                <div id="emailError" class="error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Nachricht:</label>
+                <textarea 
+                    id="message" 
+                    name="message" 
+                    rows="5" 
+                    required 
+                    placeholder="Ihre Nachricht..."
+                    aria-required="true"
+                    aria-describedby="messageError"></textarea>
+                <div id="messageError" class="error"></div>
+            </div>
+
+            <button type="submit">
+                Absenden
+                <div class="spinner"></div>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('contactForm');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const spinner = document.querySelector('.spinner');
+
+        function showError(inputId, message) {
+            const errorDiv = document.getElementById(`${inputId}Error`);
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(error => {
+                error.style.display = 'none';
+                error.textContent = '';
+            });
+        }
+
+        function validateForm() {
+            let isValid = true;
+            clearErrors();
+
+            const category = document.getElementById('category').value.trim();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            if (!category) {
+                showError('category', 'Bitte wählen Sie eine Kategorie');
+                isValid = false;
+            }
+
+            if (name.length < 2) {
+                showError('name', 'Name muss mindestens 2 Zeichen lang sein');
+                isValid = false;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('email', 'Bitte geben Sie eine gültige E-Mail-Adresse ein');
+                isValid = false;
+            }
+
+            if (message.length < 10) {
+                showError('message', 'Nachricht muss mindestens 10 Zeichen lang sein');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            submitButton.disabled = true;
+            spinner.style.display = 'block';
+
+            const serviceID = "service_qdee24n";
+            const templateID = "template_wr93hin";
+
+            const formData = {
+                category: document.getElementById('category').value,
+                from_name: document.getElementById('name').value.trim(),
+                reply_to: document.getElementById('email').value.trim(),
+                message: document.getElementById('message').value.trim(),
+                to_name: "Admin"
+            };
+
+            try {
+                const response = await emailjs.send(serviceID, templateID, formData);
+                console.log("SUCCESS Response:", response);
+                alert("Nachricht wurde erfolgreich gesendet!");
+                form.reset();
+            } catch (err) {
+                console.error("FAILED Response:", JSON.stringify(err, null, 2));
+                alert(`Fehler beim Senden: ${err.text || err.message || 'Unbekannter Fehler'}`);
+            } finally {
+                submitButton.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
